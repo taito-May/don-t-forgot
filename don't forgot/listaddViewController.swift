@@ -10,7 +10,7 @@ import UIKit
 
 class listaddViewController: UIViewController {
     var listKomet = [String]()
-    
+    var percentarray = [String]()
     let savedata : UserDefaults = UserDefaults.standard
     
     
@@ -19,6 +19,7 @@ class listaddViewController: UIViewController {
     
     @IBAction func listaddButton(_ sender: Any) {
         listKomet.append(listTextField.text!)
+        percentarray.append("0")
         listTextField.text = ""
         savedata.set(listKomet, forKey: "listList")
         self.navigationController?.popViewController(animated: true)

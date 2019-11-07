@@ -10,17 +10,14 @@ import UIKit
 
 class listViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
     @IBOutlet var listtableView: UITableView!
-    @IBOutlet var percent: UILabel!
     var listnumber = Int()
-    var checkmarkpercent = 0
+    var percentarray = [String]()
     var listKomet = [String]()
-    var listmozi : String = ""
     let savedata : UserDefaults = UserDefaults.standard
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        listmozi = listKomet[indexPath.row]
         let listCell : UITableViewCell = tableView.dequeueReusableCell(withIdentifier: "listCell", for: indexPath)
-        listCell.textLabel!.text = listmozi,checkmarkpercent
+        listCell.textLabel!.text = "\(listKomet[indexPath.row]) \(percentarray[indexPath.row])%"
         return listCell
         
     }
@@ -34,7 +31,7 @@ class listViewController: UIViewController, UITableViewDelegate, UITableViewData
             listKomet = savedata.object(forKey: "listList") as! [String]
         }
         if savedata.object(forKey: "percent") != nil {
-            checkmarkpercent = savedata.object(forKey: "\(listnumber)percent") as! Int
+            percentarray = savedata.object(forKey: "percent") as! [String]
         }
         listtableView.dataSource = self
         listtableView.delegate = self
@@ -52,7 +49,7 @@ class listViewController: UIViewController, UITableViewDelegate, UITableViewData
             listKomet = savedata.object(forKey: "listList") as! [String]
         }
         if savedata.object(forKey: "percent") != nil {
-            checkmarkpercent = savedata.object(forKey: "\(listnumber)percent") as! Int
+            percentarray = savedata.object(forKey: "percent") as! [String]
             
         }
         listtableView.reloadData()
@@ -77,16 +74,22 @@ class listViewController: UIViewController, UITableViewDelegate, UITableViewData
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete {
             listKomet.remove(at: indexPath.row)
+            percentarray.remove(at: indexPath.row)
             tableView.reloadData()
             savedata.set(listKomet, forKey: "listList")
+            savedata.set(percentarray, forKey: "percent")
         }
         
     }
     func tableView(_ tableView: UITableView, moveRowAt indexPath: IndexPath, to destinationIndexPath: IndexPath){
-        let moveData = tableView.cellForRow(at: indexPath as IndexPath)?.textLabel!.text
+        let moveData1 = tableView.cellForRow(at: indexPath as IndexPath)?.textLabel!.text
+        let moveData2 = tableView.cellForRow(at: indexPath as IndexPath)?.textLabel!.text
         listKomet.remove(at: indexPath.row)
-        listKomet.insert(moveData!, at:destinationIndexPath.row)
+        listKomet.insert(moveData1!, at:destinationIndexPath.row)
+        percentarray.remove(at: indexPath.row)
+        percentarray.insert(moveData2!, at:destinationIndexPath.row)
         savedata.set(listKomet, forKey: "listList")
+        savedata.set(percentarray, forKey: "percent")
     }
     
 }
