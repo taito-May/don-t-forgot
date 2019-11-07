@@ -19,15 +19,19 @@ class listaddViewController: UIViewController {
     
     @IBAction func listaddButton(_ sender: Any) {
         listKomet.append(listTextField.text!)
-        percentarray.append("0")
+        percentarray.append("0%")
         listTextField.text = ""
         savedata.set(listKomet, forKey: "listList")
+        savedata.set(percentarray, forKey: "percent")
         self.navigationController?.popViewController(animated: true)
     }
     override func viewDidLoad() {
         super.viewDidLoad()
         if savedata.object(forKey: "listList") != nil {
             listKomet = savedata.object(forKey: "listList") as! [String]
+        }
+        if savedata.object(forKey: "percent") != nil {
+            percentarray = savedata.object(forKey: "percent") as! [String]
         }
     }
     override func didReceiveMemoryWarning() {
