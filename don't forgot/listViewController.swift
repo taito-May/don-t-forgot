@@ -10,16 +10,17 @@ import UIKit
 
 class listViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
     @IBOutlet var listtableView: UITableView!
-    
+    @IBOutlet var percent: UILabel!
     var listnumber = Int()
-    
+    var checkmarkpercent = 0
     var listKomet = [String]()
-    
+    var listmozi : String = ""
     let savedata : UserDefaults = UserDefaults.standard
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        listmozi = listKomet[indexPath.row]
         let listCell : UITableViewCell = tableView.dequeueReusableCell(withIdentifier: "listCell", for: indexPath)
-        listCell.textLabel!.text = listKomet[indexPath.row]
+        listCell.textLabel!.text = listmozi,checkmarkpercent
         return listCell
         
     }
@@ -32,6 +33,9 @@ class listViewController: UIViewController, UITableViewDelegate, UITableViewData
         if savedata.object(forKey: "listList") != nil {
             listKomet = savedata.object(forKey: "listList") as! [String]
         }
+        if savedata.object(forKey: "percent") != nil {
+            checkmarkpercent = savedata.object(forKey: "\(listnumber)percent") as! Int
+        }
         listtableView.dataSource = self
         listtableView.delegate = self
         
@@ -42,11 +46,14 @@ class listViewController: UIViewController, UITableViewDelegate, UITableViewData
         self.view.addSubview(listtableView)
         
         self.navigationItem.rightBarButtonItem = self.editButtonItem
-        
     }
     override func viewWillAppear(_ animated: Bool) {
         if savedata.object(forKey: "listList") != nil {
             listKomet = savedata.object(forKey: "listList") as! [String]
+        }
+        if savedata.object(forKey: "percent") != nil {
+            checkmarkpercent = savedata.object(forKey: "\(listnumber)percent") as! Int
+            
         }
         listtableView.reloadData()
     }
