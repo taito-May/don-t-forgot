@@ -12,23 +12,27 @@ class listViewController: UIViewController, UITableViewDelegate, UITableViewData
     @IBOutlet var listtableView: UITableView!
     var listnumber = Int()
     var percentarray = [String]()
-    var listKomet = [String]()
     let savedata : UserDefaults = UserDefaults.standard
+    var mainlists : [Maintodo] = []
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let listCell : UITableViewCell = tableView.dequeueReusableCell(withIdentifier: "listCell", for: indexPath)
-        listCell.textLabel!.text = "\(listKomet[indexPath.row]) \(percentarray[indexPath.row])%"
+        let title = listCell.contentView.viewWithTag(1) as! UILabel
+        title.text = "\(mainlists[indexPath.row].title)"
+        let percent = listCell.contentView.viewWithTag(2) as! UILabel
+        percent.text = "\(percentarray[indexPath.row])"
+        
         return listCell
         
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int{
-        return listKomet.count
+        return mainlists.count
     }
     override func viewDidLoad() {
         super.viewDidLoad()
         if savedata.object(forKey: "listList") != nil {
-            listKomet = savedata.object(forKey: "listList") as! [String]
+            mainlists = savedata.object(forKey: "listList") as! [Maintodo]
         }
         if savedata.object(forKey: "percent") != nil {
             percentarray = savedata.object(forKey: "percent") as! [String]
@@ -44,9 +48,10 @@ class listViewController: UIViewController, UITableViewDelegate, UITableViewData
         
         self.navigationItem.rightBarButtonItem = self.editButtonItem
     }
+    
     override func viewWillAppear(_ animated: Bool) {
         if savedata.object(forKey: "listList") != nil {
-            listKomet = savedata.object(forKey: "listList") as! [String]
+            mainlists = savedata.object(forKey: "listList") as! [Maintodo]
         }
         if savedata.object(forKey: "percent") != nil {
             percentarray = savedata.object(forKey: "percent") as! [String]
@@ -55,7 +60,7 @@ class listViewController: UIViewController, UITableViewDelegate, UITableViewData
         listtableView.reloadData()
     }
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        listnumber = indexPath.row
+        listnumber = mainlists[indexPath.row].listnumber
         performSegue(withIdentifier: "toViewController", sender: nil)
         
     }
@@ -63,6 +68,7 @@ class listViewController: UIViewController, UITableViewDelegate, UITableViewData
         if segue.identifier == "toViewController" {
             let nextVC = segue.destination as! ViewController
             nextVC.listnumber = self.listnumber
+            
         }
     }
         
@@ -73,23 +79,22 @@ class listViewController: UIViewController, UITableViewDelegate, UITableViewData
     
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete {
-            listKomet.remove(at: indexPath.row)
-            percentarray.remove(at: indexPath.row)
+            mainlists.remove(at: indexPath.row)
             tableView.reloadData()
-            savedata.set(listKomet, forKey: "listList")
+            savedata.set(mainlists, forKey: "listList")
             savedata.set(percentarray, forKey: "percent")
         }
         
     }
     func tableView(_ tableView: UITableView, moveRowAt indexPath: IndexPath, to destinationIndexPath: IndexPath){
-        let moveData1 = tableView.cellForRow(at: indexPath as IndexPath)?.textLabel!.text
-        let moveData2 = tableView.cellForRow(at: indexPath as IndexPath)?.textLabel!.text
-        listKomet.remove(at: indexPath.row)
-        listKomet.insert(moveData1!, at:destinationIndexPath.row)
-        percentarray.remove(at: indexPath.row)
-        percentarray.insert(moveData2!, at:destinationIndexPath.row)
-        savedata.set(listKomet, forKey: "listList")
+        let moveData1 = tableView.cellForRow(at: indexPath as IndexPath)
+        mainlists.remove(at: indexPath.row)
+        mainlists.insert(moveData1, at:destinationIndexPath.row)
+        savedata.set(mainlists, forKey: "listList")
         savedata.set(percentarray, forKey: "percent")
     }
     
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return 80
+    }
 }

@@ -9,30 +9,31 @@
 import UIKit
 
 class listaddViewController: UIViewController {
-    var listKomet = [String]()
     var percentarray = [String]()
     let savedata : UserDefaults = UserDefaults.standard
-    
-    
+    var listnumbernumber : Int = 0
+    var mainlists : [Maintodo] = []
     @IBOutlet weak var listTextField: UITextField!
     
     
     @IBAction func listaddButton(_ sender: Any) {
-        listKomet.append(listTextField.text!)
-        percentarray.append("0%")
+        let mainlist = Maintodo(title: listTextField.text!, percent: "0%", listnumber: listnumbernumber)
         listTextField.text = ""
-        savedata.set(listKomet, forKey: "listList")
+        listnumbernumber += 1
+        mainlists.append(mainlist)
+        savedata.set(mainlists, forKey: "listList")
         savedata.set(percentarray, forKey: "percent")
         self.navigationController?.popViewController(animated: true)
     }
     override func viewDidLoad() {
         super.viewDidLoad()
         if savedata.object(forKey: "listList") != nil {
-            listKomet = savedata.object(forKey: "listList") as! [String]
+            mainlists = savedata.object(forKey: "listList") as! [Maintodo] 
         }
         if savedata.object(forKey: "percent") != nil {
             percentarray = savedata.object(forKey: "percent") as! [String]
         }
+        
     }
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
