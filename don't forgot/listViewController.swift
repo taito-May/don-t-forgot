@@ -11,31 +11,29 @@ import UIKit
 class listViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
     @IBOutlet var listtableView: UITableView!
     var listnumber = Int()
-    var percentarray = [String]()
     let savedata : UserDefaults = UserDefaults.standard
     var mainlists : [Maintodo] = []
+    var percentnumber = Int()
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let listCell : UITableViewCell = tableView.dequeueReusableCell(withIdentifier: "listCell", for: indexPath)
         let title = listCell.contentView.viewWithTag(1) as! UILabel
-        title.text = "\(mainlists[indexPath.row].title)"
+        title.text = mainlists[indexPath.row].title
         let percent = listCell.contentView.viewWithTag(2) as! UILabel
-        percent.text = "\(percentarray[indexPath.row])"
+        percent.text = mainlists[indexPath.row].percent
         
         return listCell
         
     }
-    
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int{
         return mainlists.count
     }
     override func viewDidLoad() {
         super.viewDidLoad()
-        if savedata.object(forKey: "listList") != nil {
-            mainlists = savedata.object(forKey: "listList") as! [Maintodo]
-        }
-        if savedata.object(forKey: "percent") != nil {
-            percentarray = savedata.object(forKey: "percent") as! [String]
+        if let storedData = UserDefaults.standard.object(forKey: "listList") as? Data {
+            if let unarchivedObject = try! NSKeyedUnarchiver.unarchiveTopLevelObjectWithData(storedData) as? [Maintodo] {
+                mainlists = unarchivedObject
+            }
         }
         listtableView.dataSource = self
         listtableView.delegate = self
@@ -50,12 +48,10 @@ class listViewController: UIViewController, UITableViewDelegate, UITableViewData
     }
     
     override func viewWillAppear(_ animated: Bool) {
-        if savedata.object(forKey: "listList") != nil {
-            mainlists = savedata.object(forKey: "listList") as! [Maintodo]
-        }
-        if savedata.object(forKey: "percent") != nil {
-            percentarray = savedata.object(forKey: "percent") as! [String]
-            
+        if let storedData = UserDefaults.standard.object(forKey: "listList") as? Data {
+            if let unarchivedObject = try! NSKeyedUnarchiver.unarchiveTopLevelObjectWithData(storedData) as? [Maintodo] {
+                mainlists = unarchivedObject
+            }
         }
         listtableView.reloadData()
     }
@@ -68,7 +64,6 @@ class listViewController: UIViewController, UITableViewDelegate, UITableViewData
         if segue.identifier == "toViewController" {
             let nextVC = segue.destination as! ViewController
             nextVC.listnumber = self.listnumber
-            
         }
     }
         
@@ -81,19 +76,20 @@ class listViewController: UIViewController, UITableViewDelegate, UITableViewData
         if editingStyle == .delete {
             mainlists.remove(at: indexPath.row)
             tableView.reloadData()
-            savedata.set(mainlists, forKey: "listList")
-            savedata.set(percentarray, forKey: "percent")
+            let archivedData = try! NSKeyedArchiver.archivedData(withRootObject: mainlists, requiringSecureCoding: false)
+            savedata.set(archivedData, forKey: "listList")
         }
         
     }
     func tableView(_ tableView: UITableView, moveRowAt indexPath: IndexPath, to destinationIndexPath: IndexPath){
-        let moveData1 = tableView.cellForRow(at: indexPath as IndexPath)
+        let moveData1 = mainlists[indexPath.row]
         mainlists.remove(at: indexPath.row)
         mainlists.insert(moveData1, at:destinationIndexPath.row)
-        savedata.set(mainlists, forKey: "listList")
-        savedata.set(percentarray, forKey: "percent")
+        tableView.reloadData()
+        let archivedData = try! NSKeyedArchiver.archivedData(withRootObject: mainlists, requiringSecureCoding: false)
+        savedata.set(archivedData, forKey: "listList")
+        
     }
-    
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return 80
     }

@@ -15,6 +15,7 @@ class addController: UIViewController {
     let ListViewController = listViewController()
     var MotimonoKomet = [String]()
     var checkmarkArray = [String]()
+    var inmainlists : [inMaintodo] = []
     let savedata : UserDefaults = UserDefaults.standard
     
     
@@ -22,20 +23,17 @@ class addController: UIViewController {
     
     
     @IBAction func MotimonoaddButton(_ sender: Any) {
-        MotimonoKomet.append(MotimonoTextField.text!)
-        MotimonoTextField.text = ""
-        checkmarkArray.append("none")
-        savedata.set(MotimonoKomet, forKey: "\(listnumber)List")
-        savedata.set(checkmarkArray, forKey: "\(listnumber)array")
+        inmainlists.append(inMaintodo.init(list: MotimonoTextField.text!, check: "none", listnumber: listnumber))
+         let archivedData = try! NSKeyedArchiver.archivedData(withRootObject: inmainlists, requiringSecureCoding: false)
+        savedata.set(archivedData, forKey: "\(listnumber)List")
         self.navigationController?.popViewController(animated: true)
     }
     override func viewDidLoad() {
         super.viewDidLoad()
-        if savedata.object(forKey: "\(listnumber)List") != nil {
-            MotimonoKomet = savedata.object(forKey: "\(listnumber)List") as! [String]
-        }
-        if savedata.object(forKey: "\(listnumber)List") != nil {
-            checkmarkArray = savedata.object(forKey: "\(listnumber)array") as! [String]
+        if let storedData = UserDefaults.standard.object(forKey: "\(listnumber)List") as? Data {
+            if let unarchivedObject = try! NSKeyedUnarchiver.unarchiveTopLevelObjectWithData(storedData) as? [inMaintodo] {
+                inmainlists = unarchivedObject
+            }
         }
     }
     override func didReceiveMemoryWarning() {

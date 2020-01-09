@@ -9,7 +9,6 @@
 import UIKit
 
 class listaddViewController: UIViewController {
-    var percentarray = [String]()
     let savedata : UserDefaults = UserDefaults.standard
     var listnumbernumber : Int = 0
     var mainlists : [Maintodo] = []
@@ -17,23 +16,23 @@ class listaddViewController: UIViewController {
     
     
     @IBAction func listaddButton(_ sender: Any) {
-        let mainlist = Maintodo(title: listTextField.text!, percent: "0%", listnumber: listnumbernumber)
-        listTextField.text = ""
+        mainlists.append(Maintodo.init(title: listTextField.text!, percent: "0%", inMaintodolist: [], listnumber: listnumbernumber))
         listnumbernumber += 1
-        mainlists.append(mainlist)
-        savedata.set(mainlists, forKey: "listList")
-        savedata.set(percentarray, forKey: "percent")
+        let archivedData = try! NSKeyedArchiver.archivedData(withRootObject: mainlists, requiringSecureCoding: false)
+        savedata.set(archivedData, forKey: "listList")
+        savedata.set(listnumbernumber, forKey: "listnumbernumbernumber")
         self.navigationController?.popViewController(animated: true)
     }
     override func viewDidLoad() {
         super.viewDidLoad()
-        if savedata.object(forKey: "listList") != nil {
-            mainlists = savedata.object(forKey: "listList") as! [Maintodo] 
+        if let storedData = UserDefaults.standard.object(forKey: "listList") as? Data {
+            if let unarchivedObject = try! NSKeyedUnarchiver.unarchiveTopLevelObjectWithData(storedData) as? [Maintodo] {
+                mainlists = unarchivedObject
+            }
         }
-        if savedata.object(forKey: "percent") != nil {
-            percentarray = savedata.object(forKey: "percent") as! [String]
+            if savedata.object(forKey: "listnumbernumbernumber") != nil {
+            listnumbernumber = savedata.object(forKey: "listnumbernumbernumber") as! Int
         }
-        
     }
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
